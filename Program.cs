@@ -8,6 +8,10 @@ class Program
     static double[] prices = new double[5];
     static int itemCount = 0;
 
+    //Змінні для чайових
+    static double tipAmount = 0.0;
+    static int tipMethod = 3; //1=Percentage, 2=Amount, 3=No Tip
+
     static void Main(string[] args)
     {
         int choice;
@@ -24,8 +28,7 @@ class Program
                     RemoveItem();
                     break;
                 case 3:
-                    //AddTip();
-                    Console.WriteLine(" ");
+                    AddTip();
                     break;
                 case 4:
                     //DisplayBill();
@@ -153,7 +156,7 @@ class Program
 
     static void DisplayItemList()
     {
-        Console.WriteLine("ItemNo Description                Price");
+        Console.WriteLine("ItemNo Description              Price");
         Console.WriteLine("------ ------------------- ----------");
         for (int i = 0; i < itemCount; i++)
         {
@@ -173,7 +176,7 @@ class Program
             }
             if (itemNumber == 0)
             {
-                break; // Cancel operation
+                break; //Скасування операції
             }
             if (itemNumber < 1 || itemNumber > itemCount)
             {
@@ -181,5 +184,104 @@ class Program
             }
         } while (itemNumber < 0 || itemNumber > itemCount);
         return itemNumber;
+    }
+
+    static void AddTip()
+    {
+        if (itemCount == 0)
+        {
+            Console.WriteLine("There are no items in the bill to add tip for.");
+            return;
+        }
+        double netTotal = CalculateNetTotal();
+        Console.WriteLine($"Net Total: ${netTotal:F2}");
+        DisplayTipOptions();
+        int choice = GetTipMethod();
+        switch (choice)
+        {
+            case 1:
+                tipMethod = 1;
+                tipAmount = GetTipPercentage(netTotal);
+                break;
+            case 2:
+                tipMethod = 2;
+                tipAmount = GetTipAmount();
+                break;
+            case 3:
+                tipMethod = 3;
+                tipAmount = 0.0;
+                break;
+        }
+    }
+
+    static double CalculateNetTotal()
+    {
+        double total = 0.0;
+        for (int i = 0; i < itemCount; i++)
+        {
+            total += prices[i];
+        }
+        return total;
+    }
+
+    static void DisplayTipOptions()
+    {
+        Console.WriteLine("1 - Tip Percentage");
+        Console.WriteLine("2 - Tip Amount");
+        Console.WriteLine("3 - No Tip");
+    }
+
+    static int GetTipMethod()
+    {
+        int choice;
+        do
+        {
+            Console.Write("Enter Tip Method: ");
+            while (!int.TryParse(Console.ReadLine(), out choice))
+            {
+                Console.Write("Please enter a valid number: ");
+            }
+            if (choice < 1 || choice > 3)
+            {
+                Console.WriteLine("Please enter 1, 2, or 3.");
+            }
+        } while (choice < 1 || choice > 3);
+        return choice;
+    }
+
+    static double GetTipPercentage(double netTotal)
+    {
+        double percentage;
+        do
+        {
+            Console.Write("Enter tip percentage: ");
+            while (!double.TryParse(Console.ReadLine(), out percentage))
+            {
+                Console.Write("Please enter a valid percentage: ");
+            }
+            if (percentage < 0)
+            {
+                Console.WriteLine("Percentage cannot be negative.");
+            }
+        } while (percentage < 0);
+        return (netTotal * percentage) / 100.0;
+    }
+
+    static double GetTipAmount()
+    {
+        double amount;
+        do
+        {
+            Console.Write("Enter tip amount: ");
+            while (!double.TryParse(Console.ReadLine(), out amount))
+            {
+                Console.Write("Please enter a valid amount: ");
+            }
+            if (amount < 0)
+            {
+                Console.WriteLine("Tip amount cannot be negative.");
+            }
+        } while (amount < 0);
+        return amount;
     }
 }
