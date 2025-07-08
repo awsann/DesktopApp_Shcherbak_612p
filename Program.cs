@@ -21,8 +21,7 @@ class Program
                     AddItem();
                     break;
                 case 2:
-                    //RemoveItem();
-                    Console.WriteLine(" ");
+                    RemoveItem();
                     break;
                 case 3:
                     //AddTip();
@@ -127,5 +126,60 @@ class Program
             }
         } while (price <= 0);
         return price;
+    }
+
+    static void RemoveItem()
+    {
+        if (itemCount == 0)
+        {
+            Console.WriteLine("There are no items in the bill to remove.");
+            return;
+        }
+        DisplayItemList();
+        int itemNumber = GetItemNumber();
+        if (itemNumber == 0)
+        {
+            return; //Скасування операції
+        }
+        //Видалення елемента шляхом зсуву елементів масиву
+        for (int i = itemNumber - 1; i < itemCount - 1; i++)
+        {
+            descriptions[i] = descriptions[i + 1];
+            prices[i] = prices[i + 1];
+        }
+        itemCount--;
+        Console.WriteLine("Remove item was successful.");
+    }
+
+    static void DisplayItemList()
+    {
+        Console.WriteLine("ItemNo Description                Price");
+        Console.WriteLine("------ ------------------- ----------");
+        for (int i = 0; i < itemCount; i++)
+        {
+            Console.WriteLine($"{i + 1,6} {descriptions[i],-19} ${prices[i]:F2}");
+        }
+    }
+
+    static int GetItemNumber()
+    {
+        int itemNumber;
+        do
+        {
+            Console.Write($"Enter the item number to remove or 0 to cancel: ");
+            while (!int.TryParse(Console.ReadLine(), out itemNumber))
+            {
+                Console.Write("Please enter a valid number: ");
+            }
+            if (itemNumber == 0)
+            {
+                break; // Cancel operation
+            }
+            if (itemNumber < 1 || itemNumber > itemCount)
+            {
+                Console.WriteLine($"Please enter a number between 1 and {itemCount}, or 0 to cancel.");
+            }
+        } while (itemNumber < 0 || itemNumber > itemCount);
+        return itemNumber;
     }
 }
