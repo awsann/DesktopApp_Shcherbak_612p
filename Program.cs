@@ -40,8 +40,7 @@ class Program
                     SaveToFile();
                     break;
                 case 7:
-                    //LoadFromFile();
-                    Console.WriteLine(" ");
+                    LoadFromFile();
                     break;
                 case 0:
                     Console.WriteLine("Good-bye and thanks for using this program.");
@@ -307,20 +306,14 @@ class Program
 
     static void ClearAll()
     {
-        // Очищаем все товары
         for (int i = 0; i < itemCount; i++)
         {
             descriptions[i] = null;
             prices[i] = 0.0;
         }
-
-        // Сбрасываем счетчик товаров
         itemCount = 0;
-
-        // Сбрасываем данные о чаевых
         tipAmount = 0.0;
-        tipMethod = 3; // Возвращаем к значению "No Tip"
-
+        tipMethod = 3; 
         Console.WriteLine("All items have been cleared.");
     }
 
@@ -341,21 +334,13 @@ class Program
                 double netTotal = CalculateNetTotal();
                 double gstAmount = netTotal * 0.05; // GST = 5%
                 double totalAmount = netTotal + tipAmount + gstAmount;
-
-                // Записываем заголовок
                 writer.WriteLine("Description              Price");
                 writer.WriteLine("------------------- ----------");
-
-                // Записываем все товары
                 for (int i = 0; i < itemCount; i++)
                 {
                     writer.WriteLine($"{descriptions[i],-19} ${prices[i]:F2}");
                 }
-
-                // Записываем разделитель
                 writer.WriteLine("------------------- ----------");
-
-                // Записываем итоговые суммы
                 writer.WriteLine($"{"Net Total",19} ${netTotal:F2}");
                 writer.WriteLine($"{"Tip Amount",19} ${tipAmount:F2}");
                 writer.WriteLine($"{"GST Amount",19} ${gstAmount:F2}");
@@ -376,13 +361,11 @@ class Program
         {
             Console.Write("Enter the file path to save items to: ");
             filename = Console.ReadLine();
-
             if (string.IsNullOrEmpty(filename))
             {
                 Console.WriteLine("Filename cannot be empty.");
                 continue;
             }
-
             // Проверяем расширение файла
             if (!filename.EndsWith(".txt"))
             {
@@ -394,6 +377,75 @@ class Program
             if (filenameOnly.Length < 1 || filenameOnly.Length > 10)
             {
                 Console.WriteLine("Filename must be between 1 and 10 characters (without extension).");
+                continue;
+            }
+            break;
+        } while (true);
+        return filename;
+    }
+    static void LoadFromFile()
+    {
+        string filename = GetLoadFileName();
+        try
+        {
+            //Скидаємо наявні дані перед завантаженням
+            ClearAll();
+            using (StreamReader reader = new StreamReader(filename))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null && itemCount < 5)
+                {
+                    // Пропускаем строки заголовка и разделители
+                    if (line.Contains("Description") || line.Contains("---") ||
+                        line.Contains("Net Total") || line.Contains("Tip Amount") ||
+                        line.Contains("GST Amount") || line.Contains("Total Amount") ||
+                        string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
+                    //Парсим рядок з товаром
+                    int dollarIndex = line.LastIndexOf('$');
+                    if (dollarIndex > 0)
+                    {
+                        string description = line.Substring(0, dollarIndex).Trim();
+                        string priceStr = line.Substring(dollarIndex + 1).Trim();
+                        if (double.TryParse(priceStr, out double price))
+                        {
+                            descriptions[itemCount] = description;
+                            prices[itemCount] = price;
+                            itemCount++;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine($"Read from file {filename} was successful.");
+        }
+        catch (FileNotFoundException)
+        {
+            Console.WriteLine("File not found.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading from file: {ex.Message}");
+        }
+    }
+
+    static string GetLoadFileName()
+    {
+        string filename;
+        do
+        {
+            Console.Write("Enter the file path to load items from: ");
+            filename = Console.ReadLine();
+            if (string.IsNullOrEmpty(filename))
+            {
+                Console.WriteLine("Filename cannot be empty.");
+                continue;
+            }
+            //Перевіряємо розширення файлу
+            if (!filename.EndsWith(".txt"))
+            {
+                Console.WriteLine("File must have .txt extension.");
                 continue;
             }
             break;
