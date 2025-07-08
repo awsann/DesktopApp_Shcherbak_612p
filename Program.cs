@@ -34,8 +34,7 @@ class Program
                     DisplayBill();
                     break;
                 case 5:
-                    //ClearAll();
-                    Console.WriteLine(" ");
+                    ClearAll();
                     break;
                 case 6:
                     //SaveToFile();
@@ -305,5 +304,21 @@ class Program
         Console.WriteLine($"{"Tip Amount",19} ${tipAmount:F2}");
         Console.WriteLine($"{"GST Amount",19} ${gstAmount:F2}");
         Console.WriteLine($"{"Total Amount",19} ${totalAmount:F2}");
+    }
+
+    static void ClearAll()
+    {
+        //Видаляємо всі товари
+        for (int i = 0; i < itemCount; i++)
+        {
+            descriptions[i] = null;
+            prices[i] = 0.0;
+        }
+        //Скидаємо лічильник товарів
+        itemCount = 0;
+        //Очищаємо дані про чайові
+        tipAmount = 0.0;
+        tipMethod = 3; //Скидаємо до значення «No Tip»
+        Console.WriteLine("All items have been cleared.");
     }
 }
