@@ -37,8 +37,7 @@ class Program
                     ClearAll();
                     break;
                 case 6:
-                    //SaveToFile();
-                    Console.WriteLine(" ");
+                    SaveToFile();
                     break;
                 case 7:
                     //LoadFromFile();
@@ -308,17 +307,97 @@ class Program
 
     static void ClearAll()
     {
-        //Видаляємо всі товари
+        // Очищаем все товары
         for (int i = 0; i < itemCount; i++)
         {
             descriptions[i] = null;
             prices[i] = 0.0;
         }
-        //Скидаємо лічильник товарів
+
+        // Сбрасываем счетчик товаров
         itemCount = 0;
-        //Очищаємо дані про чайові
+
+        // Сбрасываем данные о чаевых
         tipAmount = 0.0;
-        tipMethod = 3; //Скидаємо до значення «No Tip»
+        tipMethod = 3; // Возвращаем к значению "No Tip"
+
         Console.WriteLine("All items have been cleared.");
+    }
+
+    static void SaveToFile()
+    {
+        if (itemCount == 0)
+        {
+            Console.WriteLine("There are no items in the bill to save.");
+            return;
+        }
+
+        string filename = GetFileName();
+
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(filename))
+            {
+                double netTotal = CalculateNetTotal();
+                double gstAmount = netTotal * 0.05; // GST = 5%
+                double totalAmount = netTotal + tipAmount + gstAmount;
+
+                // Записываем заголовок
+                writer.WriteLine("Description              Price");
+                writer.WriteLine("------------------- ----------");
+
+                // Записываем все товары
+                for (int i = 0; i < itemCount; i++)
+                {
+                    writer.WriteLine($"{descriptions[i],-19} ${prices[i]:F2}");
+                }
+
+                // Записываем разделитель
+                writer.WriteLine("------------------- ----------");
+
+                // Записываем итоговые суммы
+                writer.WriteLine($"{"Net Total",19} ${netTotal:F2}");
+                writer.WriteLine($"{"Tip Amount",19} ${tipAmount:F2}");
+                writer.WriteLine($"{"GST Amount",19} ${gstAmount:F2}");
+                writer.WriteLine($"{"Total Amount",19} ${totalAmount:F2}");
+            }
+            Console.WriteLine($"Write to file {filename} was successful.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error writing to file: {ex.Message}");
+        }
+    }
+
+    static string GetFileName()
+    {
+        string filename;
+        do
+        {
+            Console.Write("Enter the file path to save items to: ");
+            filename = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(filename))
+            {
+                Console.WriteLine("Filename cannot be empty.");
+                continue;
+            }
+
+            // Проверяем расширение файла
+            if (!filename.EndsWith(".txt"))
+            {
+                Console.WriteLine("File must have .txt extension.");
+                continue;
+            }
+            //Отримуємо ім’я файлу без шляху та розширення для перевірки довжини
+            string filenameOnly = Path.GetFileNameWithoutExtension(filename);
+            if (filenameOnly.Length < 1 || filenameOnly.Length > 10)
+            {
+                Console.WriteLine("Filename must be between 1 and 10 characters (without extension).");
+                continue;
+            }
+            break;
+        } while (true);
+        return filename;
     }
 }
