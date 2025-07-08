@@ -31,8 +31,7 @@ class Program
                     AddTip();
                     break;
                 case 4:
-                    //DisplayBill();
-                    Console.WriteLine(" ");
+                    DisplayBill();
                     break;
                 case 5:
                     //ClearAll();
@@ -283,5 +282,28 @@ class Program
             }
         } while (amount < 0);
         return amount;
+    }
+
+    static void DisplayBill()
+    {
+        if (itemCount == 0)
+        {
+            Console.WriteLine("There are no items in the bill to display.");
+            return;
+        }
+        double netTotal = CalculateNetTotal();
+        double gstAmount = netTotal * 0.05; // GST = 5%
+        double totalAmount = netTotal + tipAmount + gstAmount;
+        Console.WriteLine("Description              Price");
+        Console.WriteLine("------------------- ----------");
+        for (int i = 0; i < itemCount; i++)
+        {
+            Console.WriteLine($"{descriptions[i],-19} ${prices[i]:F2}");
+        }
+        Console.WriteLine("------------------- ----------");
+        Console.WriteLine($"{"Net Total",19} ${netTotal:F2}");
+        Console.WriteLine($"{"Tip Amount",19} ${tipAmount:F2}");
+        Console.WriteLine($"{"GST Amount",19} ${gstAmount:F2}");
+        Console.WriteLine($"{"Total Amount",19} ${totalAmount:F2}");
     }
 }
